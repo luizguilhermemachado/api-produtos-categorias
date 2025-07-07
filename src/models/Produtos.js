@@ -1,7 +1,7 @@
 import Sequelize, { Model } from 'sequelize';
 
 
-export default class Categoria extends Model {
+export default class Produto extends Model {
   static init(sequelize) {
     super.init(
       {
@@ -25,16 +25,30 @@ export default class Categoria extends Model {
            }
           },
         },
+        preco: {
+          type: Sequelize.FLOAT,
+          defaultValue: '',
+          validate: {
+            min: {
+              args: [0.01], // maior que 0
+              msg: 'O preço deve ser maior que zero',
+            },
+          },
+        },
+        categoria_id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+        },
       },
       {
         sequelize,
-        tableName: 'categorias',
+        tableName: 'produtos',
       }
     );
 
     return this;
   }
   static associate(models){
-    this.hasMany(models.Produto, {foreignKey: 'categoria_id'})
+    this.belongsTo(models.Categoria, {foreignKey: 'categoria_id'})
   }
 }

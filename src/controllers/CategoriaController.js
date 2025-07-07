@@ -1,13 +1,23 @@
 import Categoria from "../models/Categorias.js";
+import Produto from "../models/Produtos.js";
 
 class CategoriaController {
   async index(req, res) {
     try {
-      const Categorias = await Categoria.findAll({
+      const categorias = await Categoria.findAll({
         attributes: ['id', 'nome', 'descricao'],
+        order: [
+          ['id', 'DESC'],
+          [Produto, 'id', 'DESC'],
+        ],
+        include: [{
+          model: Produto,
+          attributes: ['id', 'nome', 'descricao', 'preco', 'categoria_id'],
+        }],
       });
-      return res.json(Categorias);
+      return res.json(categorias);
     } catch (error) {
+      console.log(error)
       return res.status(500).json({ errors: ['Erro ao listar categorias'] });
     }
   }
@@ -26,12 +36,26 @@ class CategoriaController {
 
   async show(req, res) {
     try {
-      const categoria = await Categoria.findByPk(req.params.id);
+      const categoria = await Categoria.findByPk(req.params.id, {
+        attributes: ['id', 'nome', 'descricao'],
+        
+        order: [
+          ['id', 'DESC'],
+          [Produto, 'id', 'DESC']
+        ],
+
+        include:[{
+          model: Produto,
+          attributes: ['id', 'nome', 'descricao', 'preco', 'categoria_id'],
+        }],
+      });
+
       if (!categoria) {
         return res.status(404).json({ errors: ['Categoria não encontrado'] });
       }
-      const { id, nome, descricao } = categoria;
-      return res.json({ id, nome, descricao });
+
+      return res.json(categoria);
+
     } catch (error) {
       return res.status(500).json({ errors: ['Erro ao buscar categoria'] });
     }
